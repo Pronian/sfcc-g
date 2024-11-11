@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"sfcc/g/kv"
@@ -43,6 +44,22 @@ func main() {
 	kv.Init(constantPath)
 	defer kv.Close()
 
-	value := sfcc.GetSfccAuthToken(apiID, apiSecret)
-	fmt.Printf("SFCC Auth Token: %s\n", value)
+	sfcc.GetSfccAuthToken(apiID, apiSecret)
+	sandboxList := sfcc.GetSandboxList(true)
+
+	var summary bytes.Buffer
+	for _, sb := range sandboxList {
+		var stateEmoji string
+		if sb.State == "started" {
+			stateEmoji = "🟢"
+		} else if sb.State == "stopped" {
+			stateEmoji = "🔴"
+		} else {
+			stateEmoji = "🟡"
+		}
+
+		summary.WriteString(fmt.Sprintf("%s🔹%s%s%s\n", sb.ID, sb.HostName, stateEmoji, sb.State))
+	}
+
+	fmt.Println(summary.String())
 }
