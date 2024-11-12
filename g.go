@@ -25,7 +25,7 @@ func loadEnv() {
 
 	err := env.Load(path)
 	if err != nil {
-		fmt.Errorf("Error loading .env file", err)
+		fmt.Fprintf(os.Stderr, "Error loading .env file: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -33,7 +33,7 @@ func loadEnv() {
 	apiSecret = os.Getenv("SF_API_SECRET")
 
 	if apiID == "" || apiSecret == "" {
-		fmt.Errorf("SF_API_ID and SF_API_SECRET must be set in .env file")
+		fmt.Fprintf(os.Stderr, "SF_API_ID and SF_API_SECRET must be set in .env file")
 		os.Exit(1)
 	}
 }

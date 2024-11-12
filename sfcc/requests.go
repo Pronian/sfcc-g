@@ -72,7 +72,7 @@ func GetSfccAuthToken(sfccApiID string, sfccApiSecret string) string {
 		false,
 	)
 	if err != nil {
-		fmt.Errorf("Error getting SFCC auth token: %w", err)
+		fmt.Fprintf(os.Stderr, "Error getting SFCC auth token: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -149,7 +149,7 @@ func GetSandboxList(invalidate bool) []SandboxInfo {
 	)
 
 	if err != nil {
-		fmt.Errorf("Error getting sandbox list: %w", err)
+		fmt.Fprintf(os.Stderr, "Error getting sandbox list: %v", err)
 		os.Exit(1)
 	}
 
@@ -162,7 +162,7 @@ func GetSandboxList(invalidate bool) []SandboxInfo {
 
 	err = json.Unmarshal([]byte(strBody), &response)
 	if err != nil {
-		fmt.Errorf("Error unmarshalling sandbox list: %w", err)
+		fmt.Fprintf(os.Stderr, "Error unmarshalling sandbox list: %v", err)
 		os.Exit(1)
 	}
 
