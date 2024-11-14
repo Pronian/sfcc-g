@@ -1,3 +1,4 @@
 .env
 kv.db
 /g
+sfcc-g.log*
