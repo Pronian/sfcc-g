@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"sfcc/g/kv"
+	"sfcc/g/log"
 	"sort"
 	"strings"
 	"time"
@@ -56,7 +56,7 @@ func getSfccAuthToken() (string, error) {
 		return "", fmt.Errorf("error decoding response: %w", err)
 	}
 
-	fmt.Printf("Auth token response: %+v\n", authResp)
+	log.Trace("Auth token response: %+v\n", authResp)
 
 	return authResp.AccessToken, nil
 }
@@ -72,8 +72,7 @@ func GetSfccAuthToken(sfccApiID string, sfccApiSecret string) string {
 		false,
 	)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error getting SFCC auth token: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Error getting SFCC auth token: %v\n", err)
 	}
 
 	sfccAuthToken = value
@@ -149,8 +148,7 @@ func GetSandboxList(invalidate bool) []SandboxInfo {
 	)
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error getting sandbox list: %v", err)
-		os.Exit(1)
+		log.Fatalf("Error getting sandbox list: %v", err)
 	}
 
 	var response struct {
@@ -162,8 +160,7 @@ func GetSandboxList(invalidate bool) []SandboxInfo {
 
 	err = json.Unmarshal([]byte(strBody), &response)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error unmarshalling sandbox list: %v", err)
-		os.Exit(1)
+		log.Fatalf("Error unmarshalling sandbox list: %v", err)
 	}
 
 	sandboxList = response.Data

@@ -3,9 +3,9 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 	"sfcc/g/kv"
+	"sfcc/g/log"
 	"sfcc/g/sfcc"
 	"sfcc/g/util"
 
@@ -15,32 +15,34 @@ import (
 
 var apiID string
 var apiSecret string
-var constantPath = false
+var constantPath = true
+
+func getConstantPath(constantPath bool, fileName string) string {
+	if constantPath {
+		return util.GetFilePathInExecutableDirectory(fileName)
+	}
+	return fileName
+}
 
 func loadEnv() {
-	var path string
-	if constantPath {
-		path = util.GetFilePathInExecutableDirectory(".env")
-	} else {
-		path = "./.env"
-	}
+	path := getConstantPath(constantPath, ".env")
 
 	err := env.Load(path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading .env file: %v\n", err)
-		os.Exit(1)
+		log.Fatalf("Error loading .env file: %v\n", err)
 	}
 
 	apiID = os.Getenv("SF_API_ID")
 	apiSecret = os.Getenv("SF_API_SECRET")
 
 	if apiID == "" || apiSecret == "" {
-		fmt.Fprintf(os.Stderr, "SF_API_ID and SF_API_SECRET must be set in .env file")
-		os.Exit(1)
+		log.Fatal("SF_API_ID and SF_API_SECRET must be set in .env file")
 	}
 }
 
 func main() {
+	log.Start(log.LevelInfo, getConstantPath(constantPath, "sfcc-g.log"))
+	defer log.Stop()
 	loadEnv()
 
 	kv.Init(constantPath)
@@ -68,7 +70,11 @@ func main() {
 							stateEmoji = "🟡"
 						}
 
-						summary.WriteString(fmt.Sprintf("%s🔹%s%s%s\n", sb.ID, sb.HostName, stateEmoji, sb.State))
+						summary.WriteString(fmt.Sprintf("%s🔹%s%s%s", sb.ID, sb.HostName, stateEmoji, sb.State))
+
+						if sb != sandboxList[len(sandboxList)-1] {
+							summary.WriteString("\n")
+						}
 					}
 
 					fmt.Println(summary.String())

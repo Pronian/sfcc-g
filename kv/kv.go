@@ -2,6 +2,7 @@ package kv
 
 import (
 	"fmt"
+	"sfcc/g/log"
 	"sfcc/g/util"
 	"strings"
 	"time"
@@ -42,7 +43,7 @@ func Set(key, value string) {
 		b := tx.Bucket(bucketName)
 		err := b.Put([]byte(key), []byte(value))
 		if err != nil {
-			fmt.Errorf("Error setting key \"%s\" to value \"%s\"", key, value)
+			return fmt.Errorf("error setting key \"%s\" to value \"%s\"", key, value)
 		}
 		return nil
 	})
@@ -53,13 +54,13 @@ func SetTemporary(key, value string, duration time.Duration) {
 		b := tx.Bucket(bucketName)
 		err := b.Put([]byte(key), []byte(value))
 		if err != nil {
-			fmt.Errorf("Error setting temp key \"%s\" to value \"%s\"", key, value)
+			return fmt.Errorf("error setting temp key \"%s\" to value \"%s\"", key, value)
 		}
 		expDate := time.Now().Add(duration).Format(timeFormat)
-		fmt.Printf("Key \"%s\" will expire at %s\n", key, expDate)
+		log.Trace("Key \"%s\" will expire at %s\n", key, expDate)
 		err = b.Put([]byte(key+expiresSuffix), []byte(expDate))
 		if err != nil {
-			fmt.Errorf("Error setting temp key \"%s\" to value \"%s\"", key, value)
+			return fmt.Errorf("error setting temp key \"%s\" to value \"%s\"", key, value)
 		}
 		return nil
 	})
@@ -111,7 +112,7 @@ func ClearExpired() {
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
 			key := string(k)
-			if strings.HasSuffix(key, expiresSuffix) == false {
+			if !strings.HasSuffix(key, expiresSuffix) {
 				continue
 			}
 
@@ -131,9 +132,9 @@ func ClearExpired() {
 		}
 
 		if deleted > 0 {
-			fmt.Printf("Deleted %d expired keys\n", deleted)
+			log.Info("Deleted %d expired keys\n", deleted)
 		} else {
-			fmt.Println("No expired keys found")
+			log.Info("No expired keys found\n")
 		}
 		return nil
 	})

@@ -1,9 +1,9 @@
 package util
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+	"sfcc/g/log"
 )
 
 // fileName - the name of the file to be found in the same directory as the executable.
@@ -16,8 +16,7 @@ func GetFilePathInExecutableDirectory(fileName string) string {
 
 	executablePath, err := os.Executable()
 	if err != nil {
-		fmt.Errorf("Error getting executable path:", err)
-		os.Exit(1)
+		log.Fatalf("Error getting executable path: %v\n", err)
 	}
 
 	return filepath.Join(filepath.Dir(executablePath), fileName)
